@@ -17,35 +17,30 @@ export default function Login() {
     setLoading(true);
     try {
       let { data } = await axios.post(`https://ecommerce.routemisr.com/api/v1/auth/signin`, values);
+      console.log(data)
       if (data.message === 'success') {
         setLogin(data.token);
         localStorage.setItem('token', data.token)
         navigate('/');
         window.location.reload(); 
-
-
       }
       setLoading(false);
       setErrMsg('');
     } catch (error) {
-      setErrMsg('email or password in correct');
+      setErrMsg('email or password incorrect');
       setLoading(false);
     }
   }
 
-
-
-
-  const validationSchema = Yup.object().shape({
-
-    email: Yup.string().email('Invalid email format').required('Email is required'),
-password: Yup.string()
+  let validationSchema = Yup.object().shape({
+    email: Yup.string()
+      .email('Please enter a valid email address')
+      .required('Email is required'),
+  
+    password: Yup.string()
       .required('Password is required')
-      .matches('Password must start with an uppercase letter and be 3-6 characters long, containing only letters and numbers'),
-    });
-
-
-
+      .matches(/^[A-Z][a-z0-9]{2,5}$/, 'Password must start with an uppercase letter and be 3-6 characters long, containing only letters and numbers'),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -69,12 +64,16 @@ password: Yup.string()
             type="email"
             name="email"
             id="email"
-
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-green-500 focus:outline-none focus:ring-0 focus:border-green-600 peer"
             placeholder=" " />
+          {formik.touched.email && formik.errors.email && (
+            <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+              <span className="font-medium">{formik.errors.email}</span>
+            </div>
+          )}
           {errMsg ? <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
             <span className="font-medium">{errMsg}</span>
           </div> : ''}
@@ -94,7 +93,7 @@ password: Yup.string()
             className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-green-500 focus:outline-none focus:ring-0 focus:border-green-600 peer"
             placeholder=" "
           />
-          {formik.touched.phone && formik.errors.password && (
+          {formik.touched.password && formik.errors.password && (
             <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
               <span className="font-medium">{formik.errors.password}</span>
             </div>
@@ -118,17 +117,7 @@ password: Yup.string()
     Forget your password ?
   </Link>
 </div>
-
-
-
-      
-
       </form>
-     
-
-
-
-
     </div>
   );
 }
